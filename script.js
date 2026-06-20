@@ -34,6 +34,8 @@ let appState = {
     water: 0 
 };
 
+let currentCatalogMeal = '';
+
 function initApp() {
     const savedData = localStorage.getItem('nutriTrackProData');
     if (savedData) {
@@ -101,6 +103,34 @@ document.addEventListener('click', (e) => {
         document.querySelectorAll('.search-results').forEach(el => el.classList.add('hidden'));
     }
 });
+
+function openCatalog(mealType) {
+    currentCatalogMeal = mealType;
+    const catalogList = document.getElementById('catalog-list');
+    catalogList.innerHTML = '';
+    
+    foodDB.forEach(food => {
+        const div = document.createElement('div');
+        div.className = 'catalog-item';
+        div.innerHTML = `<span><b>${food.name}</b></span> <small>${food.cal} ккал / 100г</small>`;
+        div.onclick = () => selectFromCatalog(food.name);
+        catalogList.appendChild(div);
+    });
+    
+    document.getElementById('catalog-modal').classList.remove('hidden');
+}
+
+function closeCatalog() {
+    document.getElementById('catalog-modal').classList.add('hidden');
+}
+
+function selectFromCatalog(foodName) {
+    if (currentCatalogMeal) {
+        document.getElementById(`search-${currentCatalogMeal}`).value = foodName;
+        document.getElementById(`weight-${currentCatalogMeal}`).focus();
+    }
+    closeCatalog();
+}
 
 document.getElementById('profile-form').addEventListener('submit', function(e) {
     e.preventDefault(); 
