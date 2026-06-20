@@ -34,8 +34,6 @@ let appState = {
     water: 0 
 };
 
-let currentCatalogMeal = '';
-
 function initApp() {
     const savedData = localStorage.getItem('nutriTrackProData');
     if (savedData) {
@@ -69,17 +67,22 @@ function switchPage(pageId, btnElement) {
 
 function handleSearch(mealType) {
     const input = document.getElementById(`search-${mealType}`);
-    const resultsContainer = document.getElementById(`results-${mealType}`);
-    const query = input.value.toLowerCase().trim();
+    renderDropdown(mealType, input.value.toLowerCase().trim());
+}
 
+function showFullList(mealType) {
+    const input = document.getElementById(`search-${mealType}`);
+    renderDropdown(mealType, input.value.toLowerCase().trim());
+}
+
+function renderDropdown(mealType, query) {
+    const resultsContainer = document.getElementById(`results-${mealType}`);
     resultsContainer.innerHTML = '';
 
-    if (query.length < 2) {
-        resultsContainer.classList.add('hidden');
-        return;
+    let matches = foodDB;
+    if (query.length > 0) {
+        matches = foodDB.filter(food => food.name.toLowerCase().includes(query));
     }
-
-    const matches = foodDB.filter(food => food.name.toLowerCase().includes(query));
 
     if (matches.length > 0) {
         resultsContainer.classList.remove('hidden');
@@ -87,9 +90,11 @@ function handleSearch(mealType) {
             const div = document.createElement('div');
             div.className = 'search-item';
             div.innerHTML = `<span>${match.name}</span> <small>${match.cal} ккал</small>`;
-            div.onclick = () => {
-                input.value = match.name;
+            div.onclick = (e) => {
+                e.stopPropagation();
+                document.getElementById(`search-${mealType}`).value = match.name;
                 resultsContainer.classList.add('hidden');
+                document.getElementById(`weight-${mealType}`).focus();
             };
             resultsContainer.appendChild(div);
         });
@@ -103,34 +108,6 @@ document.addEventListener('click', (e) => {
         document.querySelectorAll('.search-results').forEach(el => el.classList.add('hidden'));
     }
 });
-
-function openCatalog(mealType) {
-    currentCatalogMeal = mealType;
-    const catalogList = document.getElementById('catalog-list');
-    catalogList.innerHTML = '';
-    
-    foodDB.forEach(food => {
-        const div = document.createElement('div');
-        div.className = 'catalog-item';
-        div.innerHTML = `<span><b>${food.name}</b></span> <small>${food.cal} ккал / 100г</small>`;
-        div.onclick = () => selectFromCatalog(food.name);
-        catalogList.appendChild(div);
-    });
-    
-    document.getElementById('catalog-modal').classList.remove('hidden');
-}
-
-function closeCatalog() {
-    document.getElementById('catalog-modal').classList.add('hidden');
-}
-
-function selectFromCatalog(foodName) {
-    if (currentCatalogMeal) {
-        document.getElementById(`search-${currentCatalogMeal}`).value = foodName;
-        document.getElementById(`weight-${currentCatalogMeal}`).focus();
-    }
-    closeCatalog();
-}
 
 document.getElementById('profile-form').addEventListener('submit', function(e) {
     e.preventDefault(); 
