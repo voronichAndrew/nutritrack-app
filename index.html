@@ -3,22 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NutriTrack PRO | Трекер Питания</title>
+    <title>NutriTrack PRO</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- ВЕРХНЯЯ ШАПКА И НАВИГАЦИЯ -->
     <header class="top-header">
         <div class="header-container">
-            <!-- Логотип слева -->
             <div class="logo-box">
-                <img src="images/logo-icon.png" alt="Лого" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3014/3014502.png'">
+                <img src="images/logo-icon.png" alt="Logo" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3014/3014502.png'">
                 <div class="logo-text">NutriTrack <span>PRO</span></div>
             </div>
             
-            <!-- Меню справа -->
             <nav class="top-nav">
                 <button class="nav-btn active" onclick="switchPage('summary', this)">📊 Сводка</button>
                 <button class="nav-btn" onclick="switchPage('diary', this)">🍽️ Дневник</button>
@@ -29,25 +26,21 @@
 
     <main class="app-container">
 
-        <!-- ================= ВКЛАДКА 1: СВОДКА (ГЛАВНАЯ) ================= -->
         <section id="page-summary" class="page-view active">
-            
-            <!-- Баннер с приветствием по имени -->
             <div class="greeting-banner">
-                <h2 id="welcome-message">Привет! Настрой профиль для начала.</h2>
-                <p>Твоя статистика на сегодня:</p>
+                <h2 id="welcome-message">Настройте профиль</h2>
+                <p>Ваша статистика на сегодня</p>
             </div>
 
             <div class="card-module summary-card">
-                <!-- Окно-предупреждение, если профиль пуст -->
                 <div id="profile-warning" class="alert-box warning hidden">
-                    ⚠️ Пожалуйста, заполните профиль, чтобы мы могли рассчитать вашу норму калорий.
+                    ⚠️ Заполните профиль для расчета нормы калорий.
                 </div>
 
                 <div class="circle-chart">
                     <div class="circle-inner">
                         <span id="kcal-consumed" class="big-number">0</span>
-                        <span class="small-text">съедено из <span id="kcal-target">0</span></span>
+                        <span class="small-text">из <span id="kcal-target">0</span> ккал</span>
                     </div>
                 </div>
                 
@@ -57,158 +50,146 @@
                 
                 <div class="macros-container">
                     <div class="macro-box">
-                        <div class="macro-header"><span>🥩 Белки</span> <span id="protein-text">0 / 0 г</span></div>
+                        <div class="macro-header"><span>Белки</span> <span id="protein-text">0 / 0 г</span></div>
                         <div class="progress-bg"><div id="protein-bar" class="progress-fill protein-color"></div></div>
                     </div>
                     <div class="macro-box">
-                        <div class="macro-header"><span>🥑 Жиры</span> <span id="fat-text">0 / 0 г</span></div>
+                        <div class="macro-header"><span>Жиры</span> <span id="fat-text">0 / 0 г</span></div>
                         <div class="progress-bg"><div id="fat-bar" class="progress-fill fat-color"></div></div>
                     </div>
                     <div class="macro-box">
-                        <div class="macro-header"><span>🌾 Углеводы</span> <span id="carbs-text">0 / 0 г</span></div>
+                        <div class="macro-header"><span>Углеводы</span> <span id="carbs-text">0 / 0 г</span></div>
                         <div class="progress-bg"><div id="carbs-bar" class="progress-fill carbs-color"></div></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Трекер Воды -->
             <div class="card-module water-tracker">
-                <h2>💧 Водный баланс (2л)</h2>
-                <div class="water-glasses" id="water-glasses-container"></div>
+                <h2>💧 Водный баланс</h2>
+                <p class="water-subtitle">Цель: 2000 мл</p>
+                <div class="water-widget">
+                    <button class="water-btn" onclick="updateWater(-250)">-</button>
+                    <div class="water-vessel">
+                        <div id="water-fill-level" class="water-fill"></div>
+                        <span id="water-text-display">0 мл</span>
+                    </div>
+                    <button class="water-btn" onclick="updateWater(250)">+</button>
+                </div>
                 <button onclick="resetData()" class="btn-danger-outline">🔄 Сбросить день</button>
             </div>
         </section>
 
-
-        <!-- ================= ВКЛАДКА 2: ДНЕВНИК ПИТАНИЯ ================= -->
         <section id="page-diary" class="page-view">
             <div class="card-module header-card">
                 <h2>🍽️ Дневник питания</h2>
-                <p class="subtitle">Вноси всё, что съедено за день. Точность — залог успеха.</p>
+                <p class="subtitle">Вносите приемы пищи для точного расчета</p>
             </div>
 
-            <!-- Компоненты приемов пищи -->
-            <!-- Завтрак -->
             <div class="meal-group">
                 <div class="meal-header">
-                    <h3>🍳 Завтрак</h3>
+                    <h3>Завтрак</h3>
                     <span class="meal-cals" id="breakfast-cals">0 ккал</span>
                 </div>
                 <ul class="food-list" id="list-breakfast"></ul>
                 <div class="add-food-panel">
                     <div class="search-wrapper">
-                        <input type="text" id="search-breakfast" placeholder="Начни вводить продукт..." oninput="handleSearch('breakfast')">
+                        <input type="text" id="search-breakfast" placeholder="Продукт..." oninput="handleSearch('breakfast')">
                         <div id="results-breakfast" class="search-results hidden"></div>
                     </div>
-                    <input type="number" id="weight-breakfast" placeholder="Грамм" min="1">
+                    <input type="number" id="weight-breakfast" placeholder="г" min="1">
                     <button class="btn-add" onclick="addFoodItem('breakfast')">+</button>
                 </div>
             </div>
 
-            <!-- Обед -->
             <div class="meal-group">
                 <div class="meal-header">
-                    <h3>🍲 Обед</h3>
+                    <h3>Обед</h3>
                     <span class="meal-cals" id="lunch-cals">0 ккал</span>
                 </div>
                 <ul class="food-list" id="list-lunch"></ul>
                 <div class="add-food-panel">
                     <div class="search-wrapper">
-                        <input type="text" id="search-lunch" placeholder="Начни вводить продукт..." oninput="handleSearch('lunch')">
+                        <input type="text" id="search-lunch" placeholder="Продукт..." oninput="handleSearch('lunch')">
                         <div id="results-lunch" class="search-results hidden"></div>
                     </div>
-                    <input type="number" id="weight-lunch" placeholder="Грамм" min="1">
+                    <input type="number" id="weight-lunch" placeholder="г" min="1">
                     <button class="btn-add" onclick="addFoodItem('lunch')">+</button>
                 </div>
             </div>
 
-            <!-- Ужин -->
             <div class="meal-group">
                 <div class="meal-header">
-                    <h3>🥗 Ужин</h3>
+                    <h3>Ужин</h3>
                     <span class="meal-cals" id="dinner-cals">0 ккал</span>
                 </div>
                 <ul class="food-list" id="list-dinner"></ul>
                 <div class="add-food-panel">
                     <div class="search-wrapper">
-                        <input type="text" id="search-dinner" placeholder="Начни вводить продукт..." oninput="handleSearch('dinner')">
+                        <input type="text" id="search-dinner" placeholder="Продукт..." oninput="handleSearch('dinner')">
                         <div id="results-dinner" class="search-results hidden"></div>
                     </div>
-                    <input type="number" id="weight-dinner" placeholder="Грамм" min="1">
+                    <input type="number" id="weight-dinner" placeholder="г" min="1">
                     <button class="btn-add" onclick="addFoodItem('dinner')">+</button>
                 </div>
             </div>
         </section>
 
-
-        <!-- ================= ВКЛАДКА 3: ПРОФИЛЬ И НАСТРОЙКИ ================= -->
         <section id="page-profile" class="page-view">
             <div class="profile-header">
-                <img src="images/avatar.jpg" alt="Аватар" class="profile-avatar" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
-                <h2>Мои параметры</h2>
+                <img src="images/avatar.jpg" alt="Avatar" class="profile-avatar" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+                <h2>Параметры</h2>
                 <div class="bmi-badge" id="bmi-display">ИМТ: Не рассчитано</div>
             </div>
 
             <div class="card-module">
                 <form id="profile-form" class="profile-grid">
-                    <!-- ИМЯ -->
                     <div class="input-group full-width">
-                        <label>Ваше Имя</label>
-                        <input type="text" id="user-name" placeholder="Например: Александр" required minlength="2">
+                        <label>Имя</label>
+                        <input type="text" id="user-name" required minlength="2">
                     </div>
-
-                    <!-- ПОЛ -->
                     <div class="input-group">
-                        <label>Пол (важно для метаболизма)</label>
+                        <label>Пол</label>
                         <select id="user-gender" required>
-                            <option value="" disabled selected>Выберите пол</option>
+                            <option value="" disabled selected>Выбрать</option>
                             <option value="male">Мужской</option>
                             <option value="female">Женский</option>
                         </select>
                     </div>
-
-                    <!-- ВОЗРАСТ -->
                     <div class="input-group">
-                        <label>Возраст (лет)</label>
-                        <input type="number" id="user-age" placeholder="25" min="10" max="100" required>
+                        <label>Возраст</label>
+                        <input type="number" id="user-age" min="10" max="100" required>
                     </div>
-
-                    <!-- ВЕС И РОСТ -->
                     <div class="input-group">
-                        <label>Текущий вес (кг)</label>
-                        <input type="number" id="user-weight" placeholder="70" min="30" max="250" step="0.1" required>
+                        <label>Вес (кг)</label>
+                        <input type="number" id="user-weight" min="30" max="250" step="0.1" required>
                     </div>
                     <div class="input-group">
                         <label>Рост (см)</label>
-                        <input type="number" id="user-height" placeholder="175" min="100" max="250" required>
+                        <input type="number" id="user-height" min="100" max="250" required>
                     </div>
-
-                    <!-- АКТИВНОСТЬ И ЦЕЛЬ -->
                     <div class="input-group full-width">
-                        <label>Уровень дневной активности</label>
+                        <label>Активность</label>
                         <select id="user-activity" required>
-                            <option value="" disabled selected>Выберите уровень</option>
-                            <option value="1.2">Сидячий образ (офис, нет спорта)</option>
-                            <option value="1.375">Легкая активность (прогулки, спорт 1-3 раза в неделю)</option>
-                            <option value="1.55">Средняя активность (спорт 3-5 раз в неделю)</option>
-                            <option value="1.725">Высокая (тяжелый физический труд или спорт каждый день)</option>
+                            <option value="" disabled selected>Выбрать</option>
+                            <option value="1.2">Сидячий образ</option>
+                            <option value="1.375">Легкая активность</option>
+                            <option value="1.55">Средняя активность</option>
+                            <option value="1.725">Высокая активность</option>
                         </select>
                     </div>
                     <div class="input-group full-width">
-                        <label>Ваша цель</label>
+                        <label>Цель</label>
                         <select id="user-goal" required>
-                            <option value="" disabled selected>К чему стремимся?</option>
-                            <option value="-500">Похудение (дефицит 500 ккал)</option>
-                            <option value="0">Поддержание веса (баланс)</option>
-                            <option value="500">Набор массы (профицит 500 ккал)</option>
+                            <option value="" disabled selected>Выбрать</option>
+                            <option value="-500">Похудение</option>
+                            <option value="0">Поддержание</option>
+                            <option value="500">Набор массы</option>
                         </select>
                     </div>
-                    
-                    <button type="submit" class="btn-primary full-width">💾 Сохранить профиль</button>
+                    <button type="submit" class="btn-primary full-width">Сохранить</button>
                 </form>
-                
                 <div id="save-alert" class="alert-box success hidden">
-                    ✅ Профиль сохранен! Ваша норма успешно рассчитана.
+                    Настройки сохранены
                 </div>
             </div>
         </section>
