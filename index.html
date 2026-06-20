@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriTrack PRO | Умный трекер калорий</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Фиксированная шапка -->
+    <header class="sticky-header">
+        <div class="header-content">
+            <div class="logo">NutriTrack <span>PRO</span></div>
+            <div class="header-stats">
+                <span>Осталось: <b id="header-kcal-left">0</b> ккал</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="app-container">
+        
+        <!-- БЛОК 1: Настройки профиля (Калькулятор нормы) -->
+        <section id="profile-section" class="card-module">
+            <h2>⚙️ Мой профиль и расчет нормы</h2>
+            <form id="profile-form" class="profile-grid">
+                <div class="input-group">
+                    <label>Пол</label>
+                    <select id="user-gender">
+                        <option value="male">Мужской</option>
+                        <option value="female">Женский</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Возраст (лет)</label>
+                    <input type="number" id="user-age" value="25" min="10" max="100">
+                </div>
+                <div class="input-group">
+                    <label>Вес (кг)</label>
+                    <input type="number" id="user-weight" value="70" min="30" max="250">
+                </div>
+                <div class="input-group">
+                    <label>Рост (см)</label>
+                    <input type="number" id="user-height" value="175" min="100" max="250">
+                </div>
+                <div class="input-group">
+                    <label>Активность</label>
+                    <select id="user-activity">
+                        <option value="1.2">Сидячий образ</option>
+                        <option value="1.375">Легкая активность</option>
+                        <option value="1.55">Средняя (тренировки 3 раза в неделю)</option>
+                        <option value="1.725">Высокая (каждый день)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Цель</label>
+                    <select id="user-goal">
+                        <option value="-500">Похудение</option>
+                        <option value="0">Поддержание веса</option>
+                        <option value="500">Набор массы</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary full-width">Сохранить и рассчитать</button>
+            </form>
+        </section>
+
+        <!-- БЛОК 2: Дашборд (Статистика за день) -->
+        <section id="dashboard-section" class="card-module dashboard">
+            <div class="circle-chart">
+                <div class="circle-inner">
+                    <span id="kcal-consumed" class="big-number">0</span>
+                    <span class="small-text">съедено из <span id="kcal-target">2000</span></span>
+                </div>
+            </div>
+            
+            <div class="macros-container">
+                <div class="macro-box">
+                    <div class="macro-header"><span>Белки</span> <span id="protein-text">0 / 0 г</span></div>
+                    <div class="progress-bg"><div id="protein-bar" class="progress-fill protein-color"></div></div>
+                </div>
+                <div class="macro-box">
+                    <div class="macro-header"><span>Жиры</span> <span id="fat-text">0 / 0 г</span></div>
+                    <div class="progress-bg"><div id="fat-bar" class="progress-fill fat-color"></div></div>
+                </div>
+                <div class="macro-box">
+                    <div class="macro-header"><span>Углеводы</span> <span id="carbs-text">0 / 0 г</span></div>
+                    <div class="progress-bg"><div id="carbs-bar" class="progress-fill carbs-color"></div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- БЛОК 3: Журнал питания -->
+        <section id="diary-section" class="card-module">
+            <h2>🍽️ Дневник питания</h2>
+            
+            <div class="meal-group" id="meal-breakfast">
+                <h3>Завтрак <span class="meal-cals" id="breakfast-cals">0 ккал</span></h3>
+                <ul class="food-list" id="list-breakfast"></ul>
+                <div class="add-food-panel">
+                    <input type="text" list="food-database" id="input-breakfast-name" placeholder="Поиск продукта...">
+                    <input type="number" id="input-breakfast-weight" placeholder="Грамм" min="1">
+                    <button class="btn-add" onclick="addFoodItem('breakfast')">+</button>
+                </div>
+            </div>
+
+            <div class="meal-group" id="meal-lunch">
+                <h3>Обед <span class="meal-cals" id="lunch-cals">0 ккал</span></h3>
+                <ul class="food-list" id="list-lunch"></ul>
+                <div class="add-food-panel">
+                    <input type="text" list="food-database" id="input-lunch-name" placeholder="Поиск продукта...">
+                    <input type="number" id="input-lunch-weight" placeholder="Грамм" min="1">
+                    <button class="btn-add" onclick="addFoodItem('lunch')">+</button>
+                </div>
+            </div>
+
+            <div class="meal-group" id="meal-dinner">
+                <h3>Ужин <span class="meal-cals" id="dinner-cals">0 ккал</span></h3>
+                <ul class="food-list" id="list-dinner"></ul>
+                <div class="add-food-panel">
+                    <input type="text" list="food-database" id="input-dinner-name" placeholder="Поиск продукта...">
+                    <input type="number" id="input-dinner-weight" placeholder="Грамм" min="1">
+                    <button class="btn-add" onclick="addFoodItem('dinner')">+</button>
+                </div>
+            </div>
+
+            <!-- База продуктов для автозаполнения (DataList) -->
+            <datalist id="food-database"></datalist>
+        </section>
+
+        <!-- БЛОК 4: Трекер воды -->
+        <section id="water-section" class="card-module water-tracker">
+            <h2>💧 Водный баланс</h2>
+            <p>Дневная норма: 8 стаканов (2 литра)</p>
+            <div class="water-glasses" id="water-glasses-container">
+                <!-- Стаканы сгенерируются через JS -->
+            </div>
+            <button onclick="resetData()" class="btn-danger">Очистить день (Reset)</button>
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
