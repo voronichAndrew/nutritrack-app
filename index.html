@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NutriTrack PRO</title>
+    <title>Трекер Калорий</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -13,7 +13,7 @@
         <div class="header-container">
             <div class="logo-box">
                 <img src="images/logo-icon.png" alt="Logo" class="logo-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3014/3014502.png'">
-                <div class="logo-text">NutriTrack <span>PRO</span></div>
+                <div class="logo-text">Трекер <span>Калорий</span></div>
             </div>
             
             <nav class="top-nav">
@@ -93,8 +93,7 @@
                 <ul class="food-list" id="list-breakfast"></ul>
                 <div class="add-food-panel">
                     <div class="search-wrapper">
-                        <input type="text" id="search-breakfast" placeholder="Продукт..." oninput="handleSearch('breakfast')">
-                        <button class="btn-catalog" onclick="openCatalog('breakfast')" title="Каталог продуктов">📋</button>
+                        <input type="text" id="search-breakfast" placeholder="Продукт..." oninput="handleSearch('breakfast')" onfocus="showFullList('breakfast')">
                         <div id="results-breakfast" class="search-results hidden"></div>
                     </div>
                     <input type="number" id="weight-breakfast" placeholder="г" min="1">
@@ -110,8 +109,7 @@
                 <ul class="food-list" id="list-lunch"></ul>
                 <div class="add-food-panel">
                     <div class="search-wrapper">
-                        <input type="text" id="search-lunch" placeholder="Продукт..." oninput="handleSearch('lunch')">
-                        <button class="btn-catalog" onclick="openCatalog('lunch')" title="Каталог продуктов">📋</button>
+                        <input type="text" id="search-lunch" placeholder="Продукт..." oninput="handleSearch('lunch')" onfocus="showFullList('lunch')">
                         <div id="results-lunch" class="search-results hidden"></div>
                     </div>
                     <input type="number" id="weight-lunch" placeholder="г" min="1">
@@ -127,8 +125,7 @@
                 <ul class="food-list" id="list-dinner"></ul>
                 <div class="add-food-panel">
                     <div class="search-wrapper">
-                        <input type="text" id="search-dinner" placeholder="Продукт..." oninput="handleSearch('dinner')">
-                        <button class="btn-catalog" onclick="openCatalog('dinner')" title="Каталог продуктов">📋</button>
+                        <input type="text" id="search-dinner" placeholder="Продукт..." oninput="handleSearch('dinner')" onfocus="showFullList('dinner')">
                         <div id="results-dinner" class="search-results hidden"></div>
                     </div>
                     <input type="number" id="weight-dinner" placeholder="г" min="1">
@@ -198,16 +195,6 @@
         </section>
 
     </main>
-
-    <div id="catalog-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Каталог продуктов</h3>
-                <button class="close-modal" onclick="closeCatalog()">×</button>
-            </div>
-            <div id="catalog-list" class="catalog-grid"></div>
-        </div>
-    </div>
 
     <script src="script.js"></script>
 </body>
