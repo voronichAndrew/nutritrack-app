@@ -1,4 +1,3 @@
-// --- 1. РАСШИРЕННАЯ БАЗА ПРОДУКТОВ ---
 const foodDB = [
     { name: "Куриная грудка (отварная)", cal: 165, p: 31, f: 3.6, c: 0 },
     { name: "Куриное бедро (запеченное)", cal: 209, p: 26, f: 11, c: 0 },
@@ -8,11 +7,11 @@ const foodDB = [
     { name: "Минтай (отварной)", cal: 72, p: 16, f: 1, c: 0 },
     { name: "Яйцо куриное (варёное)", cal: 155, p: 13, f: 11, c: 1.1 },
     { name: "Творог 5%", cal: 121, p: 12, f: 5, c: 3 },
-    { name: "Сыр твердый (Российский)", cal: 350, p: 26, f: 26, c: 0 },
+    { name: "Сыр твердый", cal: 350, p: 26, f: 26, c: 0 },
     { name: "Молоко 2.5%", cal: 52, p: 2.8, f: 2.5, c: 4.7 },
     { name: "Гречка (отварная)", cal: 92, p: 3.4, f: 1.2, c: 17 },
     { name: "Рис белый (отварной)", cal: 130, p: 2.7, f: 0.3, c: 28 },
-    { name: "Макароны (из твердых сортов)", cal: 112, p: 3.6, f: 0.6, c: 23 },
+    { name: "Макароны", cal: 112, p: 3.6, f: 0.6, c: 23 },
     { name: "Картофельное пюре", cal: 88, p: 2, f: 3, c: 13 },
     { name: "Овсянка на воде", cal: 88, p: 3, f: 1.7, c: 15 },
     { name: "Огурец свежий", cal: 15, p: 0.8, f: 0.1, c: 2.8 },
@@ -27,23 +26,20 @@ const foodDB = [
     { name: "Шоколад горький 70%", cal: 546, p: 5, f: 31, c: 61 }
 ];
 
-// --- 2. МЕНЕДЖЕР СОСТОЯНИЯ (Singleton) ---
 let appState = {
     isProfileFilled: false,
     user: { name: "", weight: "", height: "", age: "", gender: "", activity: "", goal: "" },
     targets: { cal: 0, p: 0, f: 0, c: 0 },
     consumed: { breakfast: [], lunch: [], dinner: [] },
-    water: 0
+    water: 0 
 };
 
-// --- 3. ИНИЦИАЛИЗАЦИЯ И МАРШРУТИЗАЦИЯ ---
 function initApp() {
-    const savedData = localStorage.getItem('nutriTrackProState');
+    const savedData = localStorage.getItem('nutriTrackProData');
     if (savedData) {
         appState = JSON.parse(savedData);
     }
     
-    // Если профиль не заполнен, принудительно открываем "Профиль"
     if (!appState.isProfileFilled) {
         document.getElementById('profile-warning').classList.remove('hidden');
         switchPage('profile', document.querySelectorAll('.nav-btn')[2]);
@@ -58,10 +54,9 @@ function initApp() {
 }
 
 function saveData() {
-    localStorage.setItem('nutriTrackProState', JSON.stringify(appState));
+    localStorage.setItem('nutriTrackProData', JSON.stringify(appState));
 }
 
-// Навигация (SPA)
 function switchPage(pageId, btnElement) {
     document.querySelectorAll('.page-view').forEach(page => page.classList.remove('active'));
     document.getElementById('page-' + pageId).classList.add('active');
@@ -70,7 +65,6 @@ function switchPage(pageId, btnElement) {
     btnElement.classList.add('active');
 }
 
-// --- 4. ЖИВОЙ ПОИСК (Live Search) ---
 function handleSearch(mealType) {
     const input = document.getElementById(`search-${mealType}`);
     const resultsContainer = document.getElementById(`results-${mealType}`);
@@ -83,7 +77,6 @@ function handleSearch(mealType) {
         return;
     }
 
-    // Ищем совпадения в базе
     const matches = foodDB.filter(food => food.name.toLowerCase().includes(query));
 
     if (matches.length > 0) {
@@ -92,7 +85,6 @@ function handleSearch(mealType) {
             const div = document.createElement('div');
             div.className = 'search-item';
             div.innerHTML = `<span>${match.name}</span> <small>${match.cal} ккал</small>`;
-            // По клику вставляем имя в инпут и скрываем подсказки
             div.onclick = () => {
                 input.value = match.name;
                 resultsContainer.classList.add('hidden');
@@ -104,18 +96,15 @@ function handleSearch(mealType) {
     }
 }
 
-// Скрываем подсказки при клике вне
 document.addEventListener('click', (e) => {
     if (!e.target.closest('.search-wrapper')) {
         document.querySelectorAll('.search-results').forEach(el => el.classList.add('hidden'));
     }
 });
 
-// --- 5. ВАЛИДАЦИЯ И ПРОФИЛЬ ---
 document.getElementById('profile-form').addEventListener('submit', function(e) {
     e.preventDefault(); 
     
-    // Сбор данных
     appState.user.name = document.getElementById('user-name').value.trim();
     appState.user.gender = document.getElementById('user-gender').value;
     appState.user.age = parseInt(document.getElementById('user-age').value);
@@ -124,7 +113,6 @@ document.getElementById('profile-form').addEventListener('submit', function(e) {
     appState.user.activity = parseFloat(document.getElementById('user-activity').value);
     appState.user.goal = parseInt(document.getElementById('user-goal').value);
 
-    // Валидация пройдена (HTML5 required тоже работает)
     appState.isProfileFilled = true;
     
     calculateNorms();
@@ -148,7 +136,7 @@ function calculateNorms() {
     let tdee = bmr * u.activity;
     let targetCal = Math.round(tdee + u.goal); 
 
-    appState.targets.cal = targetCal > 1000 ? targetCal : 1200; // Минимум 1200 для здоровья
+    appState.targets.cal = targetCal > 1200 ? targetCal : 1200; 
     appState.targets.p = Math.round((appState.targets.cal * 0.30) / 4);
     appState.targets.f = Math.round((appState.targets.cal * 0.30) / 9);
     appState.targets.c = Math.round((appState.targets.cal * 0.40) / 4);
@@ -163,10 +151,10 @@ function calculateBMI() {
     const bmi = (w / (h * h)).toFixed(1);
     
     let status = "", color = "";
-    if(bmi < 18.5) { status = "Дефицит веса"; color = "#f59e0b"; }
-    else if(bmi < 24.9) { status = "Норма"; color = "#10b981"; }
-    else if(bmi < 29.9) { status = "Избыточный вес"; color = "#f59e0b"; }
-    else { status = "Ожирение"; color = "#ef4444"; }
+    if(bmi < 18.5) { status = "Дефицит"; color = "var(--color-fat)"; }
+    else if(bmi < 24.9) { status = "Норма"; color = "var(--color-primary)"; }
+    else if(bmi < 29.9) { status = "Избыточный вес"; color = "var(--color-fat)"; }
+    else { status = "Ожирение"; color = "var(--color-danger)"; }
 
     const badge = document.getElementById('bmi-display');
     badge.innerHTML = `ИМТ: ${bmi} <span>(${status})</span>`;
@@ -184,10 +172,10 @@ function fillProfileForm() {
     document.getElementById('user-goal').value = appState.user.goal;
 }
 
-// --- 6. ДОБАВЛЕНИЕ ЕДЫ В ЖУРНАЛ ---
 function addFoodItem(mealType) {
     if (!appState.isProfileFilled) {
-        alert("Сначала заполните профиль, чтобы мы знали вашу норму!");
+        alert("Заполните профиль для расчета норм!");
+        switchPage('profile', document.querySelectorAll('.nav-btn')[2]);
         return;
     }
 
@@ -198,7 +186,6 @@ function addFoodItem(mealType) {
     const weight = parseInt(weightInput.value);
 
     if(!foodName || !weight || weight <= 0) {
-        alert("Заполните название и корректный вес (больше 0)!"); 
         return;
     }
 
@@ -217,10 +204,9 @@ function addFoodItem(mealType) {
             c: Math.round(foodData.c * ratio * 10)/10
         };
     } else {
-        // Продукт вне базы
         const approxCal = weight * 1.5; 
         productObj = {
-            id: Date.now(), name: foodName + " (Оценка)", weight: weight, cal: Math.round(approxCal), p: 0, f: 0, c: 0
+            id: Date.now(), name: foodName, weight: weight, cal: Math.round(approxCal), p: 0, f: 0, c: 0
         };
     }
 
@@ -235,12 +221,10 @@ function deleteFoodItem(mealType, id) {
     updateUI();
 }
 
-// --- 7. ОБНОВЛЕНИЕ ИНТЕРФЕЙСА ---
 function updateUI() {
-    // Приветствие
     const welcome = document.getElementById('welcome-message');
     if(appState.isProfileFilled) {
-        welcome.textContent = `Привет, ${appState.user.name}! Вот твоя сводка на сегодня:`;
+        welcome.textContent = `Привет, ${appState.user.name}!`;
     }
 
     renderFoodLists();
@@ -258,8 +242,8 @@ function renderFoodLists() {
             mealCalTotal += item.cal;
             const li = document.createElement('li');
             li.innerHTML = `
-                <span><b>${item.name}</b> <small>(${item.weight}г)</small></span>
-                <span>${item.cal} ккал <button class="delete-btn" title="Удалить" onclick="deleteFoodItem('${meal}', ${item.id})">×</button></span>
+                <span>${item.name} <small>${item.weight}г</small></span>
+                <span>${item.cal} ккал <button class="delete-btn" onclick="deleteFoodItem('${meal}', ${item.id})">×</button></span>
             `;
             ul.appendChild(li);
         });
@@ -282,20 +266,17 @@ function updateDashboard() {
     const targetCals = appState.targets.cal;
     let leftCals = targetCals - currentCals;
 
-    // Обновляем текст на дашборде
-    document.getElementById('header-kcal-left').textContent = appState.isProfileFilled ? (leftCals > 0 ? leftCals : 0) : '---';
+    document.getElementById('header-kcal-left').textContent = appState.isProfileFilled ? (leftCals > 0 ? leftCals : 0) : '0';
     document.getElementById('kcal-consumed').textContent = currentCals;
-    document.getElementById('kcal-target').textContent = appState.isProfileFilled ? targetCals : '---';
+    document.getElementById('kcal-target').textContent = appState.isProfileFilled ? targetCals : '0';
 
-    // Круг
     let percentage = 0;
     if(targetCals > 0) percentage = Math.min((currentCals / targetCals) * 100, 100);
     
     const circle = document.querySelector('.circle-chart');
     const color = percentage >= 100 ? 'var(--color-danger)' : 'var(--color-primary)';
-    circle.style.background = `conic-gradient(${color} ${percentage}%, #e2e8f0 ${percentage}%)`;
+    circle.style.background = `conic-gradient(${color} ${percentage}%, #f1f5f9 ${percentage}%)`;
 
-    // Бары
     updateMacroBar('protein', currentP, appState.targets.p);
     updateMacroBar('fat', currentF, appState.targets.f);
     updateMacroBar('carbs', currentC, appState.targets.c);
@@ -312,31 +293,28 @@ function updateMacroBar(idPrefix, current, target) {
     document.getElementById(`${idPrefix}-bar`).style.width = `${percent}%`;
 }
 
-// --- 8. ТРЕКЕР ВОДЫ ---
+function updateWater(amount) {
+    appState.water += amount;
+    if (appState.water < 0) appState.water = 0;
+    if (appState.water > 2000) appState.water = 2000;
+    renderWaterTracker();
+    saveData();
+}
+
 function renderWaterTracker() {
-    const container = document.getElementById('water-glasses-container');
-    container.innerHTML = '';
-    for(let i = 0; i < 8; i++) {
-        let glass = document.createElement('div');
-        glass.className = 'glass' + (i < appState.water ? ' filled' : '');
-        glass.onclick = () => {
-            if (appState.water === i + 1) appState.water--;
-            else appState.water = i + 1;
-            renderWaterTracker();
-            saveData();
-        };
-        container.appendChild(glass);
-    }
+    const fillLevel = document.getElementById('water-fill-level');
+    const textDisplay = document.getElementById('water-text-display');
+    
+    const percentage = (appState.water / 2000) * 100;
+    fillLevel.style.height = `${percentage}%`;
+    textDisplay.textContent = `${appState.water} мл`;
 }
 
 function resetData() {
-    if(confirm("Начать новый день? Вся съеденная еда будет удалена (Профиль сохранится).")) {
-        appState.consumed = { breakfast: [], lunch: [], dinner: [] };
-        appState.water = 0;
-        updateUI();
-        renderWaterTracker();
-    }
+    appState.consumed = { breakfast: [], lunch: [], dinner: [] };
+    appState.water = 0;
+    updateUI();
+    renderWaterTracker();
 }
 
-// СТАРТ
 initApp();
