@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NutriTrack PRO</title>
+    <title>Трекер Калорий</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -26,16 +26,10 @@
 
     <main class="app-container">
 
-        <div id="date-navigator" class="date-navigator">
-            <button class="date-btn" onclick="changeDate(-1)">◀</button>
-            <span id="current-date-display">Сегодня</span>
-            <button class="date-btn" onclick="changeDate(1)">▶</button>
-        </div>
-
         <section id="page-summary" class="page-view active">
             <div class="greeting-banner">
                 <h2 id="welcome-message">Настройте профиль</h2>
-                <p>Ваша статистика на <span class="dynamic-date-text">сегодня</span></p>
+                <p>Ваша статистика на сегодня</p>
             </div>
 
             <div class="card-module summary-card">
@@ -81,13 +75,14 @@
                     </div>
                     <button class="water-btn" onclick="updateWater(250)">+</button>
                 </div>
+                <button onclick="resetData()" class="btn-danger-outline">🔄 Сбросить день</button>
             </div>
         </section>
 
         <section id="page-diary" class="page-view">
             <div class="card-module header-card">
                 <h2>🍽️ Дневник питания</h2>
-                <p class="subtitle">Рацион на <span class="dynamic-date-text">сегодня</span></p>
+                <p class="subtitle">Вносите приемы пищи для точного расчета</p>
             </div>
 
             <div class="meal-group">
@@ -99,7 +94,6 @@
                 <div class="add-food-panel">
                     <div class="search-wrapper">
                         <input type="text" id="search-breakfast" placeholder="Продукт..." oninput="handleSearch('breakfast')" onfocus="showFullList('breakfast')">
-                        <button class="btn-catalog" onclick="openCatalog('breakfast')">📋</button>
                         <div id="results-breakfast" class="search-results hidden"></div>
                     </div>
                     <input type="number" id="weight-breakfast" placeholder="г" min="1">
@@ -116,7 +110,6 @@
                 <div class="add-food-panel">
                     <div class="search-wrapper">
                         <input type="text" id="search-lunch" placeholder="Продукт..." oninput="handleSearch('lunch')" onfocus="showFullList('lunch')">
-                        <button class="btn-catalog" onclick="openCatalog('lunch')">📋</button>
                         <div id="results-lunch" class="search-results hidden"></div>
                     </div>
                     <input type="number" id="weight-lunch" placeholder="г" min="1">
@@ -133,7 +126,6 @@
                 <div class="add-food-panel">
                     <div class="search-wrapper">
                         <input type="text" id="search-dinner" placeholder="Продукт..." oninput="handleSearch('dinner')" onfocus="showFullList('dinner')">
-                        <button class="btn-catalog" onclick="openCatalog('dinner')">📋</button>
                         <div id="results-dinner" class="search-results hidden"></div>
                     </div>
                     <input type="number" id="weight-dinner" placeholder="г" min="1">
@@ -203,49 +195,6 @@
         </section>
 
     </main>
-
-    <div id="catalog-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Каталог продуктов</h3>
-                <button class="close-modal" onclick="closeCatalog()">×</button>
-            </div>
-            <button class="btn-create-food" onclick="openCustomFoodModal()">+ Создать свой продукт</button>
-            <div id="catalog-list" class="catalog-grid"></div>
-        </div>
-    </div>
-
-    <div id="custom-food-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Новый продукт (на 100г)</h3>
-                <button class="close-modal" onclick="closeCustomFoodModal()">×</button>
-            </div>
-            <form id="custom-food-form" class="profile-grid">
-                <div class="input-group full-width">
-                    <label>Название</label>
-                    <input type="text" id="custom-name" required>
-                </div>
-                <div class="input-group">
-                    <label>Калории</label>
-                    <input type="number" id="custom-cal" min="0" required>
-                </div>
-                <div class="input-group">
-                    <label>Белки (г)</label>
-                    <input type="number" step="0.1" id="custom-p" min="0" required>
-                </div>
-                <div class="input-group">
-                    <label>Жиры (г)</label>
-                    <input type="number" step="0.1" id="custom-f" min="0" required>
-                </div>
-                <div class="input-group">
-                    <label>Углеводы (г)</label>
-                    <input type="number" step="0.1" id="custom-c" min="0" required>
-                </div>
-                <button type="submit" class="btn-primary full-width">Сохранить продукт</button>
-            </form>
-        </div>
-    </div>
 
     <script src="script.js"></script>
 </body>
