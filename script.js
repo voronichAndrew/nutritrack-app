@@ -30,31 +30,71 @@ let appState = {
     isProfileFilled: false,
     user: { name: "", weight: "", height: "", age: "", gender: "", activity: "", goal: "" },
     targets: { cal: 0, p: 0, f: 0, c: 0 },
-    consumed: { breakfast: [], lunch: [], dinner: [] },
-    water: 0 
+    customFoods: [],
+    history: {}
 };
 
+let currentDateString = "";
+let currentCatalogMeal = '';
+
+function getTodayStr() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function formatDateStr(dateStr) {
+    const d = new Date(dateStr);
+    const today = new Date();
+    const todayStr = getTodayStr();
+    if (dateStr === todayStr) return "сегодня";
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yestStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,'0')}-${String(yesterday.getDate()).padStart(2,'0')}`;
+    if (dateStr === yestStr) return "вчера";
+    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+}
+
+function getCurrentDayData() {
+    if (!appState.history[currentDateString]) {
+        appState.history[currentDateString] = {
+            consumed: { breakfast: [], lunch: [], dinner: [] },
+            water: 0
+        };
+    }
+    return appState.history[currentDateString];
+}
+
 function initApp() {
-    const savedData = localStorage.getItem('nutriTrackProData');
+    const savedData = localStorage.getItem('nutriTrackFinalData');
     if (savedData) {
-        appState = JSON.parse(savedData);
+        let parsed = JSON.parse(savedData);
+        if (!parsed.history) {
+            appState.user = parsed.user || appState.user;
+            appState.targets = parsed.targets || appState.targets;
+            appState.isProfileFilled = parsed.isProfileFilled || false;
+        } else {
+            appState = parsed;
+        }
     }
     
+    currentDateString = getTodayStr();
+
     if (!appState.isProfileFilled) {
         document.getElementById('profile-warning').classList.remove('hidden');
+        document.getElementById('date-navigator').classList.add('hidden');
         switchPage('profile', document.querySelectorAll('.nav-btn')[2]);
     } else {
         document.getElementById('profile-warning').classList.add('hidden');
+        document.getElementById('date-navigator').classList.remove('hidden');
         fillProfileForm();
         calculateBMI();
     }
     
-    renderWaterTracker();
     updateUI();
 }
 
 function saveData() {
-    localStorage.setItem('nutriTrackProData', JSON.stringify(appState));
+    localStorage.setItem('nutriTrackFinalData', JSON.stringify(appState));
 }
 
 function switchPage(pageId, btnElement) {
@@ -62,7 +102,25 @@ function switchPage(pageId, btnElement) {
     document.getElementById('page-' + pageId).classList.add('active');
     
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    btnElement.classList.add('active');
+    if(btnElement) btnElement.classList.add('active');
+
+    const dateNav = document.getElementById('date-navigator');
+    if(pageId === 'profile') {
+        dateNav.classList.add('hidden');
+    } else if(appState.isProfileFilled) {
+        dateNav.classList.remove('hidden');
+    }
+}
+
+function changeDate(offset) {
+    const d = new Date(currentDateString);
+    d.setDate(d.getDate() + offset);
+    currentDateString = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    updateUI();
+}
+
+function getAllFoods() {
+    return [...foodDB, ...(appState.customFoods || [])];
 }
 
 function handleSearch(mealType) {
@@ -78,10 +136,10 @@ function showFullList(mealType) {
 function renderDropdown(mealType, query) {
     const resultsContainer = document.getElementById(`results-${mealType}`);
     resultsContainer.innerHTML = '';
-
-    let matches = foodDB;
+    const all = getAllFoods();
+    let matches = all;
     if (query.length > 0) {
-        matches = foodDB.filter(food => food.name.toLowerCase().includes(query));
+        matches = all.filter(food => food.name.toLowerCase().includes(query));
     }
 
     if (matches.length > 0) {
@@ -109,9 +167,62 @@ document.addEventListener('click', (e) => {
     }
 });
 
+function openCatalog(mealType) {
+    currentCatalogMeal = mealType;
+    const catalogList = document.getElementById('catalog-list');
+    catalogList.innerHTML = '';
+    
+    getAllFoods().forEach(food => {
+        const div = document.createElement('div');
+        div.className = 'catalog-item';
+        div.innerHTML = `<span><b>${food.name}</b></span> <small>${food.cal} ккал / 100г</small>`;
+        div.onclick = () => selectFromCatalog(food.name);
+        catalogList.appendChild(div);
+    });
+    
+    document.getElementById('catalog-modal').classList.remove('hidden');
+}
+
+function closeCatalog() {
+    document.getElementById('catalog-modal').classList.add('hidden');
+}
+
+function selectFromCatalog(foodName) {
+    if (currentCatalogMeal) {
+        document.getElementById(`search-${currentCatalogMeal}`).value = foodName;
+        document.getElementById(`weight-${currentCatalogMeal}`).focus();
+    }
+    closeCatalog();
+}
+
+function openCustomFoodModal() {
+    closeCatalog();
+    document.getElementById('custom-food-modal').classList.remove('hidden');
+}
+
+function closeCustomFoodModal() {
+    document.getElementById('custom-food-modal').classList.add('hidden');
+}
+
+document.getElementById('custom-food-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('custom-name').value.trim();
+    const cal = parseInt(document.getElementById('custom-cal').value);
+    const p = parseFloat(document.getElementById('custom-p').value);
+    const f = parseFloat(document.getElementById('custom-f').value);
+    const c = parseFloat(document.getElementById('custom-c').value);
+
+    if(!appState.customFoods) appState.customFoods = [];
+    appState.customFoods.push({ name, cal, p, f, c });
+    saveData();
+    
+    document.getElementById('custom-food-form').reset();
+    closeCustomFoodModal();
+    if(currentCatalogMeal) openCatalog(currentCatalogMeal);
+});
+
 document.getElementById('profile-form').addEventListener('submit', function(e) {
     e.preventDefault(); 
-    
     appState.user.name = document.getElementById('user-name').value.trim();
     appState.user.gender = document.getElementById('user-gender').value;
     appState.user.age = parseInt(document.getElementById('user-age').value);
@@ -119,7 +230,6 @@ document.getElementById('profile-form').addEventListener('submit', function(e) {
     appState.user.height = parseInt(document.getElementById('user-height').value);
     appState.user.activity = parseFloat(document.getElementById('user-activity').value);
     appState.user.goal = parseInt(document.getElementById('user-goal').value);
-
     appState.isProfileFilled = true;
     
     calculateNorms();
@@ -127,6 +237,7 @@ document.getElementById('profile-form').addEventListener('submit', function(e) {
     updateUI();
 
     document.getElementById('profile-warning').classList.add('hidden');
+    document.getElementById('date-navigator').classList.remove('hidden');
     
     const alertBox = document.getElementById('save-alert');
     alertBox.classList.remove('hidden');
@@ -136,10 +247,8 @@ document.getElementById('profile-form').addEventListener('submit', function(e) {
 function calculateNorms() {
     const u = appState.user;
     if(!appState.isProfileFilled) return;
-
     let bmr = (10 * u.weight) + (6.25 * u.height) - (5 * u.age);
     bmr = u.gender === 'male' ? bmr + 5 : bmr - 161;
-
     let tdee = bmr * u.activity;
     let targetCal = Math.round(tdee + u.goal); 
 
@@ -147,7 +256,6 @@ function calculateNorms() {
     appState.targets.p = Math.round((appState.targets.cal * 0.30) / 4);
     appState.targets.f = Math.round((appState.targets.cal * 0.30) / 9);
     appState.targets.c = Math.round((appState.targets.cal * 0.40) / 4);
-
     saveData();
 }
 
@@ -181,22 +289,18 @@ function fillProfileForm() {
 
 function addFoodItem(mealType) {
     if (!appState.isProfileFilled) {
-        alert("Заполните профиль для расчета норм!");
         switchPage('profile', document.querySelectorAll('.nav-btn')[2]);
         return;
     }
-
     const nameInput = document.getElementById(`search-${mealType}`);
     const weightInput = document.getElementById(`weight-${mealType}`);
-    
     const foodName = nameInput.value.trim();
     const weight = parseInt(weightInput.value);
 
-    if(!foodName || !weight || weight <= 0) {
-        return;
-    }
+    if(!foodName || !weight || weight <= 0) return;
 
-    const foodData = foodDB.find(f => f.name.toLowerCase() === foodName.toLowerCase());
+    const all = getAllFoods();
+    const foodData = all.find(f => f.name.toLowerCase() === foodName.toLowerCase());
     let productObj = {};
 
     if(foodData) {
@@ -217,35 +321,40 @@ function addFoodItem(mealType) {
         };
     }
 
-    appState.consumed[mealType].push(productObj);
+    getCurrentDayData().consumed[mealType].push(productObj);
     nameInput.value = ''; weightInput.value = '';
-    
     updateUI();
 }
 
 function deleteFoodItem(mealType, id) {
-    appState.consumed[mealType] = appState.consumed[mealType].filter(item => item.id !== id);
+    const dayData = getCurrentDayData();
+    dayData.consumed[mealType] = dayData.consumed[mealType].filter(item => item.id !== id);
     updateUI();
 }
 
 function updateUI() {
-    const welcome = document.getElementById('welcome-message');
+    document.getElementById('current-date-display').textContent = formatDateStr(currentDateString);
+    const dTexts = document.querySelectorAll('.dynamic-date-text');
+    dTexts.forEach(el => el.textContent = formatDateStr(currentDateString));
+
     if(appState.isProfileFilled) {
-        welcome.textContent = `Привет, ${appState.user.name}!`;
+        document.getElementById('welcome-message').textContent = `Привет, ${appState.user.name}!`;
     }
 
     renderFoodLists();
     updateDashboard();
+    renderWaterTracker();
     saveData();
 }
 
 function renderFoodLists() {
+    const dayData = getCurrentDayData();
     ['breakfast', 'lunch', 'dinner'].forEach(meal => {
         const ul = document.getElementById(`list-${meal}`);
         ul.innerHTML = '';
         let mealCalTotal = 0;
 
-        appState.consumed[meal].forEach(item => {
+        dayData.consumed[meal].forEach(item => {
             mealCalTotal += item.cal;
             const li = document.createElement('li');
             li.innerHTML = `
@@ -259,10 +368,11 @@ function renderFoodLists() {
 }
 
 function updateDashboard() {
+    const dayData = getCurrentDayData();
     let currentCals = 0, currentP = 0, currentF = 0, currentC = 0;
 
     ['breakfast', 'lunch', 'dinner'].forEach(meal => {
-        appState.consumed[meal].forEach(item => {
+        dayData.consumed[meal].forEach(item => {
             currentCals += item.cal;
             currentP += item.p;
             currentF += item.f;
@@ -301,27 +411,28 @@ function updateMacroBar(idPrefix, current, target) {
 }
 
 function updateWater(amount) {
-    appState.water += amount;
-    if (appState.water < 0) appState.water = 0;
-    if (appState.water > 2000) appState.water = 2000;
+    const dayData = getCurrentDayData();
+    dayData.water += amount;
+    if (dayData.water < 0) dayData.water = 0;
+    if (dayData.water > 2000) dayData.water = 2000;
     renderWaterTracker();
     saveData();
 }
 
 function renderWaterTracker() {
+    const dayData = getCurrentDayData();
     const fillLevel = document.getElementById('water-fill-level');
     const textDisplay = document.getElementById('water-text-display');
-    
-    const percentage = (appState.water / 2000) * 100;
+    const percentage = (dayData.water / 2000) * 100;
     fillLevel.style.height = `${percentage}%`;
-    textDisplay.textContent = `${appState.water} мл`;
+    textDisplay.textContent = `${dayData.water} мл`;
 }
 
 function resetData() {
-    appState.consumed = { breakfast: [], lunch: [], dinner: [] };
-    appState.water = 0;
+    const dayData = getCurrentDayData();
+    dayData.consumed = { breakfast: [], lunch: [], dinner: [] };
+    dayData.water = 0;
     updateUI();
-    renderWaterTracker();
 }
 
 initApp();
